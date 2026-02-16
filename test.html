@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster - Diagnostic Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ccc;
+        }
+        .test.pass {
+            border-left-color: #27ae60;
+        }
+        .test.fail {
+            border-left-color: #c33;
+        }
+        .test h3 {
+            margin: 0 0 10px 0;
+        }
+        .status {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .pass .status { color: #27ae60; }
+        .fail .status { color: #c33; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 TaskMaster Diagnostic Test</h1>
+        <p>This page will help you diagnose issues with your TaskMaster app</p>
+    </div>
+
+    <div id="tests"></div>
+
+    <div class="info">
+        <h3>💡 Quick Fixes</h3>
+        <ul>
+            <li><strong>React/ReactDOM not defined:</strong> Refresh the page or check internet connection</li>
+            <li><strong>Files not found (404):</strong> Make sure you're serving via HTTP and index.html is in root</li>
+            <li><strong>Firebase errors:</strong> Check src/config/firebase.config.js</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <button onclick="runTests()">🔄 Run Tests Again</button>
+        <button onclick="window.location.href='index.html'">▶️ Launch App</button>
+    </div>
+
+    <div class="info">
+        <h3>📋 How to Fix Common Issues</h3>
+        <pre>
+# Serve the app correctly:
+cd taskmaster-github-pages
+python -m http.server 8000
+# Then open: http://localhost:8000/test.html
+
+# Check file structure:
+taskmaster-github-pages/
+├── index.html          ← Must be here
+├── test.html           ← This file
+└── src/                ← All source files here
+        </pre>
+    </div>
+
+    <!-- Test Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+
+    <script>
+        function createTest(name, passed, details) {
+            return {
+                name: name,
+                passed: passed,
+                details: details || ''
+            };
+        }
+
+        function displayTests(tests) {
+            const container = document.getElementById('tests');
+            container.innerHTML = '';
+
+            tests.forEach(test => {
+                const div = document.createElement('div');
+                div.className = 'test ' + (test.passed ? 'pass' : 'fail');
+                div.innerHTML = `
+                    <h3>${test.name}</h3>
+                    <div class="status">${test.passed ? '✅ PASS' : '❌ FAIL'}</div>
+                    ${test.details ? `<p>${test.details}</p>` : ''}
+                `;
+                container.appendChild(div);
+            });
+
+            // Summary
+            const passed = tests.filter(t => t.passed).length;
+            const total = tests.length;
+            const summary = document.createElement('div');
+            summary.className = 'info';
+            summary.innerHTML = `
+                <h3>Test Summary</h3>
+                <p><strong>${passed} of ${total} tests passed</strong></p>
+                ${passed === total ? 
+                    '<p style="color: #27ae60;">✅ All tests passed! Your app should work correctly.</p>' :
+                    '<p style="color: #c33;">❌ Some tests failed. See details above and check COMMON-ERRORS.md</p>'
+                }
+            `;
+            container.appendChild(summary);
+        }
+
+        function runTests() {
+            const tests = [];
+
+            // Test 1: React
+            tests.push(createTest(
+                'React Library',
+                typeof React !== 'undefined',
+                typeof React !== 'undefined' ? 
+                    `React version: ${React.version}` : 
+                    'React failed to load. Check internet connection.'
+            ));
+
+            // Test 2: ReactDOM
+            tests.push(createTest(
+                'ReactDOM Library',
+                typeof ReactDOM !== 'undefined',
+                typeof ReactDOM !== 'undefined' ? 
+                    'ReactDOM loaded successfully' : 
+                    'ReactDOM failed to load. Check internet connection.'
+            ));
+
+            // Test 3: Firebase
+            tests.push(createTest(
+                'Firebase Library',
+                typeof firebase !== 'undefined',
+                typeof firebase !== 'undefined' ? 
+                    'Firebase loaded successfully' : 
+                    'Firebase failed to load. Check internet connection.'
+            ));
+
+            // Test 4: HTTP vs File
+            const isHTTP = window.location.protocol.startsWith('http');
+            tests.push(createTest(
+                'Serving Method',
+                isHTTP,
+                isHTTP ? 
+                    `Served via ${window.location.protocol}` : 
+                    'Using file:// protocol. Use HTTP server: python -m http.server 8000'
+            ));
+
+            // Test 5: Check if files exist (via fetch)
+            const filesToCheck = [
+                'src/styles/main.css',
+                'src/config/firebase.config.js',
+                'src/App.jsx'
+            ];
+
+            let fileTestsComplete = 0;
+
+            filesToCheck.forEach(file => {
+                fetch(file, { method: 'HEAD' })
+                    .then(response => {
+                        tests.push(createTest(
+                            `File: ${file}`,
+                            response.ok,
+                            response.ok ? 
+                                'File exists and is accessible' : 
+                                `File not found (404). Check file structure.`
+                        ));
+                    })
+                    .catch(error => {
+                        tests.push(createTest(
+                            `File: ${file}`,
+                            false,
+                            `Cannot access file: ${error.message}`
+                        ));
+                    })
+                    .finally(() => {
+                        fileTestsComplete++;
+                        if (fileTestsComplete === filesToCheck.length) {
+                            displayTests(tests);
+                        }
+                    });
+            });
+
+            // Display initial tests (without file checks)
+            setTimeout(() => {
+                if (fileTestsComplete === 0) {
+                    displayTests(tests);
+                }
+            }, 100);
+        }
+
+        // Run tests on load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>
