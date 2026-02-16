@@ -1,6 +1,6 @@
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyA27HdQcrgwPjlnPZifJ_BuNThLhmo9qWk",
+   apiKey: "AIzaSyA27HdQcrgwPjlnPZifJ_BuNThLhmo9qWk",
     authDomain: "claude-todo-1.firebaseapp.com",
     projectId: "claude-todo-1",
     storageBucket: "claude-todo-1.firebasestorage.app",
@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 
 // Check configuration
-if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+if (firebaseConfig.apiKey ==="AIzaSyA27HdQcrgwPjlnPZifJ_BuNThLhmo9qWk") {
     console.error('⚠️ FIREBASE NOT CONFIGURED!');
     console.error('Please edit src/config/firebase.config.js and add your Firebase configuration.');
 }
