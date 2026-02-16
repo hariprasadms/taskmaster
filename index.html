@@ -5,26 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskMaster - Firebase To-Do App</title>
     <link rel="stylesheet" href="src/styles/main.css">
+    <style>
+        /* Loading indicator */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #loading.hidden {
+            display: none;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #loading-status {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div>Loading TaskMaster...</div>
+        <div id="loading-status">Initializing...</div>
+    </div>
     <div id="root"></div>
     
+    <!-- Load scripts in strict order with error handling -->
+    <script>
+        window.loadingStatus = document.getElementById('loading-status');
+        window.scriptErrors = [];
+        
+        function updateStatus(msg) {
+            if (window.loadingStatus) {
+                window.loadingStatus.textContent = msg;
+            }
+            console.log('📦 ' + msg);
+        }
+        
+        function handleScriptError(scriptName) {
+            return function(e) {
+                const error = scriptName + ' failed to load';
+                console.error('❌ ' + error);
+                window.scriptErrors.push(error);
+                alert('Error loading ' + scriptName + '. Please check your internet connection and refresh the page.');
+            };
+        }
+    </script>
+    
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" 
+            onload="updateStatus('Firebase loaded')"
+            onerror="handleScriptError('Firebase')()"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <!-- React -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React - Must load completely before Babel -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"
+            onload="updateStatus('React loaded')"
+            onerror="handleScriptError('React')()"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"
+            onload="updateStatus('ReactDOM loaded')"
+            onerror="handleScriptError('ReactDOM')()"></script>
+    
+    <!-- Wait for React to load before continuing -->
+    <script>
+        if (typeof React === 'undefined') {
+            alert('❌ React failed to load. Please refresh the page.');
+            throw new Error('React not loaded');
+        }
+        if (typeof ReactDOM === 'undefined') {
+            alert('❌ ReactDOM failed to load. Please refresh the page.');
+            throw new Error('ReactDOM not loaded');
+        }
+        console.log('✅ React ' + React.version + ' ready');
+        updateStatus('Loading Babel...');
+    </script>
+    
+    <!-- Babel - Only load after React is confirmed -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"
+            onload="updateStatus('Babel loaded')"></script>
+    
+    <script>
+        // Verify Babel loaded
+        if (typeof Babel === 'undefined') {
+            alert('❌ Babel failed to load. Please refresh the page.');
+            throw new Error('Babel not loaded');
+        }
+        updateStatus('Loading Firebase config...');
+    </script>
     
     <!-- Firebase Config -->
-    <script src="src/config/firebase.config.js"></script>
+    <script src="src/config/firebase.config.js" 
+            onload="updateStatus('Config loaded')"
+            onerror="alert('Firebase config not found. Check src/config/firebase.config.js exists.')"></script>
+    
+    <script>
+        updateStatus('Loading utilities...');
+    </script>
     
     <!-- Utilities -->
     <script type="text/babel" src="src/utils/firebase.js"></script>
     <script type="text/babel" src="src/utils/helpers.js"></script>
+    
+    <script>
+        updateStatus('Loading components...');
+    </script>
     
     <!-- Components -->
     <script type="text/babel" src="src/components/Notification.jsx"></script>
@@ -38,8 +145,38 @@
     <script type="text/babel" src="src/components/Tasks/TaskControls.jsx"></script>
     <script type="text/babel" src="src/components/Modal/EditTaskModal.jsx"></script>
     <script type="text/babel" src="src/components/EmptyState/EmptyState.jsx"></script>
+    <script type="text/babel" src="src/components/Pages/LabelsPage.jsx"></script>
+    <script type="text/babel" src="src/components/Pages/CategoriesPage.jsx"></script>
+    <script type="text/babel" src="src/components/Pages/SettingsPage.jsx"></script>
+    
+    <script>
+        updateStatus('Loading app...');
+    </script>
     
     <!-- Main App -->
     <script type="text/babel" src="src/App.jsx"></script>
+    
+    <!-- Hide loading indicator after everything loads -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.classList.add('hidden');
+                }
+                console.log('✅ App fully loaded');
+            }, 1000);
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('❌ Error:', e.message, 'File:', e.filename);
+            
+            // Check for specific React errors
+            if (e.message && e.message.includes('ReactDOM')) {
+                alert('Error: ReactDOM failed to load.\n\nThis usually means:\n1. Poor internet connection\n2. CDN is blocked\n3. Scripts loaded in wrong order\n\nPlease refresh the page. If the error persists, try:\n- Different browser\n- Incognito mode\n- Check internet connection');
+            }
+        });
+    </script>
 </body>
 </html>
