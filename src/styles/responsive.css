@@ -1,0 +1,55 @@
+/* Responsive Styles */
+
+@media (max-width: 968px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .task-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .app-header {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 10px;
+    }
+
+    .app-header {
+        padding: var(--spacing-lg);
+    }
+
+    .task-section {
+        padding: var(--spacing-lg);
+    }
+
+    .sidebar {
+        padding: var(--spacing-lg);
+    }
+
+    .filter-sort {
+        flex-direction: column;
+    }
+
+    .filter-sort select {
+        width: 100%;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .task-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-container {
+        margin: 50px auto;
+        padding: var(--spacing-2xl);
+    }
+}

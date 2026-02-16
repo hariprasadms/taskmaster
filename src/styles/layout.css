@@ -1,0 +1,48 @@
+/* Layout Styles */
+
+body {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 100vh;
+    padding: var(--spacing-xl);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.loading {
+    text-align: center;
+    padding: var(--spacing-4xl);
+    color: var(--white);
+    font-size: 18px;
+}
+
+/* Main Content Grid */
+.main-content {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--spacing-2xl);
+}
+
+/* Auth Container */
+.auth-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--white);
+    padding: var(--spacing-4xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-container h2 {
+    margin-bottom: var(--spacing-2xl);
+    color: var(--gray-800);
+    text-align: center;
+}
+
+.text-center {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    color: var(--gray-600);
+}
