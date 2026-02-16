@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 
 // Check configuration
-if (firebaseConfig.apiKey === "AIzaSyA27HdQcrgwPjlnPZifJ_BuNThLhmo9qWk") {
+if (firebaseConfig.apiKey === "YOUR_API_KEY") {
     console.error('⚠️ FIREBASE NOT CONFIGURED!');
     console.error('Please edit src/config/firebase.config.js and add your Firebase configuration.');
 }
