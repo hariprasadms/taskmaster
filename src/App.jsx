@@ -16,11 +16,15 @@ const App = () => {
     const TaskList = window.TaskList;
     const EmptyState = window.EmptyState;
     const EditTaskModal = window.EditTaskModal;
+    const LabelsPage = window.LabelsPage;
+    const CategoriesPage = window.CategoriesPage;
+    const SettingsPage = window.SettingsPage;
 
     // State
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
+    const [currentPage, setCurrentPage] = useState('tasks');
     const [categories, setCategories] = useState([
         { id: 'all', name: 'All Tasks', count: 0 },
         { id: 'today', name: 'Today', count: 0 },
@@ -233,6 +237,63 @@ const App = () => {
     const filteredTasks = getFilteredTasks();
     const stats = helpers.getStats(tasks);
 
+    // Render pages based on current page
+    const renderPage = () => {
+        switch (currentPage) {
+            case 'categories':
+                return <window.CategoriesPage user={user} onBack={() => setCurrentPage('tasks')} />;
+            case 'labels':
+                return <window.LabelsPage user={user} onBack={() => setCurrentPage('tasks')} />;
+            case 'settings':
+                return <window.SettingsPage user={user} onBack={() => setCurrentPage('tasks')} />;
+            case 'tasks':
+            default:
+                return (
+                    <>
+                        <Sidebar
+                            categories={categories}
+                            customCategories={customCategories}
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={setSelectedCategory}
+                            onAddCategory={addCategory}
+                            tasks={tasks}
+                        />
+
+                        <div className="task-section">
+                            <StatsCards stats={stats} />
+
+                            <TaskForm
+                                newTask={newTask}
+                                setNewTask={setNewTask}
+                                onAddTask={addTask}
+                                customCategories={customCategories}
+                            />
+
+                            <TaskControls
+                                searchQuery={searchQuery}
+                                setSearchQuery={setSearchQuery}
+                                sortBy={sortBy}
+                                setSortBy={setSortBy}
+                                filterPriority={filterPriority}
+                                setFilterPriority={setFilterPriority}
+                            />
+
+                            {filteredTasks.length === 0 ? (
+                                <EmptyState />
+                            ) : (
+                                <TaskList
+                                    tasks={filteredTasks}
+                                    onToggleComplete={toggleComplete}
+                                    onEdit={setEditingTask}
+                                    onDelete={deleteTask}
+                                />
+                            )}
+                        </div>
+                    </>
+                );
+        }
+    };
+
     return (
         <div className="container">
             {notification && (
@@ -243,48 +304,15 @@ const App = () => {
                 />
             )}
 
-            <AppHeader user={user} onLogout={handleLogout} />
+            <AppHeader 
+                user={user} 
+                onLogout={handleLogout}
+                currentPage={currentPage}
+                onNavigate={setCurrentPage}
+            />
 
-            <div className="main-content">
-                <Sidebar
-                    categories={categories}
-                    customCategories={customCategories}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
-                    onAddCategory={addCategory}
-                    tasks={tasks}
-                />
-
-                <div className="task-section">
-                    <StatsCards stats={stats} />
-
-                    <TaskForm
-                        newTask={newTask}
-                        setNewTask={setNewTask}
-                        onAddTask={addTask}
-                        customCategories={customCategories}
-                    />
-
-                    <TaskControls
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        sortBy={sortBy}
-                        setSortBy={setSortBy}
-                        filterPriority={filterPriority}
-                        setFilterPriority={setFilterPriority}
-                    />
-
-                    {filteredTasks.length === 0 ? (
-                        <EmptyState />
-                    ) : (
-                        <TaskList
-                            tasks={filteredTasks}
-                            onToggleComplete={toggleComplete}
-                            onEdit={setEditingTask}
-                            onDelete={deleteTask}
-                        />
-                    )}
-                </div>
+            <div className={currentPage === 'tasks' ? 'main-content' : ''}>
+                {renderPage()}
             </div>
 
             {editingTask && (

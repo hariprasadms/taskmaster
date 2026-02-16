@@ -13,6 +13,15 @@
         flex-direction: column;
         gap: var(--spacing-lg);
     }
+    
+    .nav-menu {
+        order: -1;
+        width: 100%;
+    }
+    
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 640px) {
@@ -51,5 +60,44 @@
     .auth-container {
         margin: 50px auto;
         padding: var(--spacing-2xl);
+    }
+    
+    .page-header {
+        padding: var(--spacing-lg);
+    }
+    
+    .page-content {
+        padding: var(--spacing-lg);
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-link {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .add-item-form {
+        flex-direction: column;
+    }
+    
+    .label-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+    
+    .label-actions {
+        width: 100%;
+    }
+    
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
     }
 }

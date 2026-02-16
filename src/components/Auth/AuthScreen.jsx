@@ -4,6 +4,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -13,13 +14,30 @@ const AuthScreen = ({ onAuthSuccess }) => {
         setError('');
 
         try {
+            let userCredential;
+            
             if (isLogin) {
-                await window.auth.signInWithEmailAndPassword(email, password);
+                // Login
+                userCredential = await window.auth.signInWithEmailAndPassword(email, password);
+                
+                // Update last login
+                await window.userManager.updateLastLogin(userCredential.user.uid);
+                console.log('✅ User logged in and last login updated');
             } else {
-                await window.auth.createUserWithEmailAndPassword(email, password);
+                // Sign up
+                userCredential = await window.auth.createUserWithEmailAndPassword(email, password);
+                
+                // Create user document
+                await window.userManager.createUserDocument(
+                    userCredential.user,
+                    displayName.trim()
+                );
+                console.log('✅ User account created and document created in Firestore');
             }
+            
             onAuthSuccess();
         } catch (err) {
+            console.error('Auth error:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -31,6 +49,17 @@ const AuthScreen = ({ onAuthSuccess }) => {
             <h2>{isLogin ? 'Login to TaskMaster' : 'Create Account'}</h2>
             {error && <div className="error">{error}</div>}
             <form onSubmit={handleSubmit}>
+                {!isLogin && (
+                    <div className="form-group">
+                        <label>Display Name</label>
+                        <input
+                            type="text"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            placeholder="Enter your name"
+                        />
+                    </div>
+                )}
                 <div className="form-group">
                     <label>Email</label>
                     <input
